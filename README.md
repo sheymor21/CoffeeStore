@@ -1,1 +1,1 @@
-# CoffeeStore
+# Coffee Store
