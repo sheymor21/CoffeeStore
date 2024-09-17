@@ -1,9 +1,10 @@
 ﻿const mongoose = require('mongoose');
+require('dotenv').config();
 
-const USER = 'root'
-const PASS = 'password!1'
-const DBNAME = 'prueba'
-const URI = 'mongodb://127.0.0.1:27017';
+const USER = process.env.MONGO_USER;
+const PASS = process.env.MONGO_PASS;
+const DBNAME = process.env.MONGO_DBNAME;
+const URI = process.env.MONGO_URI;
 
 mongoose.connect(URI, {user: USER, pass: PASS, dbName: DBNAME})
     .then(async () => {
