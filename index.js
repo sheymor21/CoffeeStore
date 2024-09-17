@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const routes = require('./src/routes/Coffee.route')
+const routes = require('./src/routes/coffee.route')
 app.use(express.json())
 
 

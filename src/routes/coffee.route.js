@@ -1,6 +1,6 @@
 ﻿const express = require('express');
 const router = express.Router();
-const {addCoffee, getCoffee, updateCoffee, deleteCoffee} = require('../Controllers/Coffee.controller');
+const {addCoffee, getCoffee, updateCoffee, deleteCoffee} = require('../controllers/coffee.controller');
 
 
 router.post('/', addCoffee)

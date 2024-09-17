@@ -1,4 +1,4 @@
-﻿const mongoose = require('../Context/Context.js');
+﻿const mongoose = require('../database/connection.js');
 
 const CoffeeSchema = new mongoose.Schema(
     {

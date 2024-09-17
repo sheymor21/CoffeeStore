@@ -1,5 +1,5 @@
-﻿const CoffeeValidation = require("../Validations/Coffee.validation");
-const Coffee = require("../Models/Coffee.model");
+﻿const CoffeeValidation = require("../Validations/coffee.validation");
+const Coffee = require("../models/coffee.model");
 
 const addCoffee = async (req, res) => {
     try {
