@@ -1,4 +1,4 @@
-﻿const CoffeeValidation = require("../Validations/coffee.validation");
+﻿const CoffeeValidation = require("../validations/coffee.validation");
 const Coffee = require("../models/coffee.model");
 
 const addCoffee = async (req, res) => {
