@@ -9,8 +9,8 @@ const addCoffee = async (req, res) => {
                 error: error.details[0].message
             })
         }
-        const test = await Coffee.create(req.body, null)
-        return res.status(201).send(test)
+        const coffee = await Coffee.create(req.body, null)
+        return res.status(201).send(coffee)
     } catch (err) {
         return res.status(500).send(err.message)
     }

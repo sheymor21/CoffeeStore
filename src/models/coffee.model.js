@@ -1,6 +1,6 @@
 ﻿const mongoose = require('../database/connection.js');
 
-const CoffeeSchema = new mongoose.Schema(
+const coffeeSchema = new mongoose.Schema(
     {
         name: {
             type: String,
@@ -28,5 +28,5 @@ const CoffeeSchema = new mongoose.Schema(
     }
 )
 
-const Coffee = mongoose.model('Coffee', CoffeeSchema);
+const Coffee = mongoose.model('Coffee', coffeeSchema);
 module.exports = Coffee;
