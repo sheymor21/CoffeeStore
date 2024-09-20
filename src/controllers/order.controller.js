@@ -1,9 +1,9 @@
 ﻿const OrderValidation = require('../validations/order.validation')
-const {Order} = require('../models/order.model')
+const Order = require('../models/order.model')
 
 
 const addOrder = async (req, res) => {
-    const {error} = OrderValidation.validate(req.body);
+    const {error} = OrderValidation.orderCreateValidation.validate(req.body);
     if (error) {
         return res.status(400).send({
             error: error.details[0].message
@@ -25,8 +25,10 @@ const getOrder = async (req, res) => {
         ClientName: 1,
         OrderDate: 1,
         'OrderItems.CoffeeId': 1,
+        'OrderItems.Quantity': 1,
         'OrderItems.CoffeeName': '$CoffeeDetails.name',
-        'OrderItems.CoffeePrice': '$CoffeeDetails.price'
+        'OrderItems.CoffeePrice': '$CoffeeDetails.price',
+        'OrderItems.TotalCost': {$multiply: ["$CoffeeDetails.price", "$OrderItems.Quantity"]},
     }
 
     const group = {
@@ -37,11 +39,13 @@ const getOrder = async (req, res) => {
             $push: {
                 CoffeeId: "$OrderItems.CoffeeId",
                 CoffeeName: "$OrderItems.CoffeeName",
-                CoffeePrice: "$OrderItems.CoffeePrice"
+                CoffeePrice: "$OrderItems.CoffeePrice",
+                Quantity: "$OrderItems.Quantity",
+                TotalCost: "$OrderItems.TotalCost"
             }
         },
         TotalPrice: {
-            $sum: "$OrderItems.CoffeePrice"
+            $sum: "$OrderItems.TotalCost"
         }
     }
     const result = await Order.aggregate()
@@ -55,4 +59,107 @@ const getOrder = async (req, res) => {
     return res.status(201).send(result)
 }
 
-module.exports = {addOrder, getOrder}
+const updateOrderClientName = async (req, res) => {
+    const {error} = OrderValidation.orderClientNameValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+    const {id} = req.params
+    const {ClientName} = req.body
+    const {modifiedCount, matchedCount} = await Order.updateOne({'_id': id}, {$set: {ClientName: ClientName}}, null);
+    if (modifiedCount === 0) {
+        return res.status(404).send({error: "Order not update"})
+    } else if (matchedCount === 0) {
+        return res.status(404).send({error: "Order not found"})
+    }
+
+    return res.status(200).send({})
+
+
+}
+
+const addMoreItems = async (req, res) => {
+    const {error} = OrderValidation.orderItemsValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+
+    const {id} = req.params
+    const updateOrder = await Order.updateOne({'_id': id}, {$push: {OrderItems: req.body}}, null);
+    if (!updateOrder) {
+        return res.status(404).send({error: "Order not found"})
+    }
+    return res.status(200).send(updateOrder)
+}
+
+const deleteOrderItems = async (req, res) => {
+    const {error} = OrderValidation.orderItemsIdValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+
+    const {id} = req.params
+    const {CoffeeIds} = req.body
+
+    const updateOrder = await Order.updateOne(
+        {'_id': id},
+        {$pull: {OrderItems: {CoffeeId: {$in: CoffeeIds}}}},
+        null
+    );
+
+    if (!updateOrder) {
+        return res.status(404).send({error: "Order not found or no items deleted"});
+    }
+
+    return res.status(200).send(updateOrder);
+}
+
+const updateOrderItems = async (req, res) => {
+    const {error} = OrderValidation.orderItemsValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        });
+    }
+
+    const {id} = req.params;
+    const {CoffeeId, Quantity} = req.body
+    const filter = {'_id': id, 'OrderItems.CoffeeId': CoffeeId}
+    const update = {$set: {'OrderItems.$.Quantity': Quantity}}
+    const {modifiedCount, matchedCount} = await Order.updateOne(filter, update)
+
+
+    if (modifiedCount === 0) {
+        return res.status(404).send({error: "No items updated"});
+    } else if (matchedCount === 0) {
+
+        return res.status(404).send({error: "Order not found"});
+    }
+
+    return res.status(200).send({});
+};
+
+const deleteOrder = async (req, res) => {
+    const {id} = req.params
+    const result = await Order.findByIdAndDelete(id, null);
+    if (!result) {
+        return res.status(404).send({error: "Order not found"})
+    }
+    return res.status(200).send(result)
+}
+
+module.exports = {
+    addOrder,
+    getOrder,
+    updateOrderClientName,
+    deleteOrder,
+    addMoreItems,
+    deleteOrderItems,
+    updateOrderItems
+}

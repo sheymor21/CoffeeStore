@@ -11,8 +11,8 @@ const addCoffee = async (req, res) => {
         }
         const coffee = await Coffee.create(req.body, null)
         return res.status(201).send(coffee)
-    } catch (err) {
-        return res.status(500).send(err.message)
+    } catch (e) {
+        return res.status(500).send({error: e.message})
     }
 }
 
@@ -22,7 +22,7 @@ const getCoffee = async (req, res) => {
         const coffeeList = await Coffee.find({}, projection, null);
         return res.status(200).send(coffeeList);
     } catch (e) {
-        return res.status(500).send(e.message)
+        return res.status(500).send({error: e.message})
     }
 }
 
@@ -34,13 +34,14 @@ const updateCoffee = async (req, res) => {
         })
     }
     const {id} = req.params;
-    const updatedCoffee = await Coffee.findByIdAndUpdate(id, req.body, null);
-    if (!updatedCoffee) {
-        return res.status(404).send({
-            error: "Coffee not found"
-        });
+    const {modifiedCount, matchedCount} = await Coffee.updateOne({'_id': id}, {$set: req.body}, null);
+
+    if (modifiedCount === 0) {
+        return res.status(404).send({error: "Coffee not update"})
+    } else if (matchedCount === 0) {
+        return res.status(404).send({error: "Coffee not found"})
     }
-    return res.status(200).send('update coffee');
+    return res.status(200).send({});
 
 }
 
@@ -52,7 +53,7 @@ const deleteCoffee = async (req, res) => {
             error: "Coffee not found"
         })
     }
-    return res.status(200).send('deleted coffee');
+    return res.status(200).send({});
 
 }
 

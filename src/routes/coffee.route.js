@@ -1,11 +1,11 @@
 ﻿const express = require('express');
 const router = express.Router();
-const {addCoffee, getCoffee, updateCoffee, deleteCoffee} = require('../controllers/coffee.controller');
+const CoffeeRoutes = require('../controllers/coffee.controller');
 
 
-router.post('/', addCoffee)
-router.get('/', getCoffee);
-router.put('/:id', updateCoffee);
-router.delete('/:id', deleteCoffee);
+router.post('/', CoffeeRoutes.addCoffee)
+router.get('/', CoffeeRoutes.getCoffee);
+router.put('/:id', CoffeeRoutes.updateCoffee);
+router.delete('/:id', CoffeeRoutes.deleteCoffee);
 
 module.exports = router;
