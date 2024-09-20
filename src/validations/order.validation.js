@@ -5,21 +5,21 @@ const orderSingleItemValidation = Joi.object({
 })
 
 const orderItemsIdValidation = Joi.object({
-    CoffeeIds: Joi.array().items(Joi.string()).required(),
+    coffeeIds: Joi.array().items(Joi.string()).required(),
 })
 
 const orderItemsValidation = Joi.object({
-    CoffeeId: Joi.string().required(),
-    Quantity: Joi.number().required(),
+    coffeeId: Joi.string().required(),
+    quantity: Joi.number().required(),
 })
 
 const orderCreateValidation = Joi.object({
-    ClientName: Joi.string().required(),
-    OrderItems: Joi.array().items(orderItemsValidation).required()
+    clientName: Joi.string().required(),
+    orderItems: Joi.array().items(orderItemsValidation).required()
 })
 
 const orderClientNameValidation = Joi.object({
-    ClientName: Joi.string().required(),
+    clientName: Joi.string().required(),
 })
 
 

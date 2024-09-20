@@ -89,11 +89,20 @@ const addMoreItems = async (req, res) => {
     }
 
     const {id} = req.params
-    const updateOrder = await Order.updateOne({'_id': id}, {$push: {OrderItems: req.body}}, null);
-    if (!updateOrder) {
-        return res.status(404).send({error: "Order not found"})
+    const {coffeeId, quantity} = req.body
+    const {matchedCount} = await Order.updateOne({'_id': id}, {
+        $push: {
+            OrderItems: {
+                CoffeeId: coffeeId,
+                Quantity: quantity
+            }
+        }
+    }, null);
+
+    if (matchedCount === 0) {
+        return res.status(404).send({error: "Order not found"});
     }
-    return res.status(200).send(updateOrder)
+    return res.status(200).send({})
 }
 
 const deleteOrderItems = async (req, res) => {
@@ -105,19 +114,23 @@ const deleteOrderItems = async (req, res) => {
     }
 
     const {id} = req.params
-    const {CoffeeIds} = req.body
+    const {coffeeIds} = req.body
 
-    const updateOrder = await Order.updateOne(
+    const {modifiedCount, matchedCount} = await Order.updateOne(
         {'_id': id},
-        {$pull: {OrderItems: {CoffeeId: {$in: CoffeeIds}}}},
+        {$pull: {OrderItems: {CoffeeId: {$in: coffeeIds}}}},
         null
     );
 
-    if (!updateOrder) {
-        return res.status(404).send({error: "Order not found or no items deleted"});
+
+    if (modifiedCount === 0) {
+        return res.status(404).send({error: "No items updated"});
+    } else if (matchedCount === 0) {
+
+        return res.status(404).send({error: "Order not found"});
     }
 
-    return res.status(200).send(updateOrder);
+    return res.status(200).send({});
 }
 
 const updateOrderItems = async (req, res) => {
@@ -129,9 +142,9 @@ const updateOrderItems = async (req, res) => {
     }
 
     const {id} = req.params;
-    const {CoffeeId, Quantity} = req.body
-    const filter = {'_id': id, 'OrderItems.CoffeeId': CoffeeId}
-    const update = {$set: {'OrderItems.$.Quantity': Quantity}}
+    const {coffeeId, quantity} = req.body
+    const filter = {'_id': id, 'OrderItems.CoffeeId': coffeeId}
+    const update = {$set: {'OrderItems.$.Quantity': quantity}}
     const {modifiedCount, matchedCount} = await Order.updateOne(filter, update)
 
 
@@ -151,7 +164,7 @@ const deleteOrder = async (req, res) => {
     if (!result) {
         return res.status(404).send({error: "Order not found"})
     }
-    return res.status(200).send(result)
+    return res.status(200).send({})
 }
 
 module.exports = {
