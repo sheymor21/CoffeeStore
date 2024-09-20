@@ -1,15 +1,16 @@
 const express = require('express')
+require('dotenv').config()
 const app = express()
-const coffeeRoutes = require('./src/routes/coffee.route')
-const orderRoutes = require('./src/routes/order.route')
+const coffeeRoutes = require('./src/routes/coffees.route')
+const orderRoutes = require('./src/routes/orders.route')
 app.use(express.json())
 
-
-app.listen(8080, () => {
-    console.log('Server running on port 8080')
+const PORT = process.env.PORT || 8080
+app.listen(PORT, () => {
+    console.log('Server running on port ' + PORT)
 })
 
-app.use('/Coffee', coffeeRoutes)
-app.use('/Order', orderRoutes)
+app.use('/Coffees', coffeeRoutes)
+app.use('/Orders', orderRoutes)
 
 
