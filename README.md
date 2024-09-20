@@ -49,6 +49,12 @@ The following environment variables are used in this project:
 - `MONGO_URI`: MongoDB connection string
 - `PORT`: The port on which the server will run
 
+## Swagger Documentation
+
+This project uses Swagger for API documentation. You can view the API documentation at the following endpoint:
+
+- **/api/api-docs**: Access the Swagger UI for detailed API documentation and testing.
+
 ## API Endpoints
 
 - **GET /api/coffees**: Get a list of all coffee products.
