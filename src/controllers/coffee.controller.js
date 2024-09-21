@@ -3,12 +3,6 @@ const Coffee = require("../models/coffee.model");
 
 const addCoffee = async (req, res) => {
     try {
-        const {error} = CoffeeValidation.validate(req.body);
-        if (error) {
-            return res.status(400).send({
-                error: error.details[0].message
-            })
-        }
         const coffee = await Coffee.create(req.body, null)
         return res.status(201).send(coffee)
     } catch (e) {
@@ -27,12 +21,6 @@ const getCoffee = async (req, res) => {
 }
 
 const updateCoffee = async (req, res) => {
-    const {error} = CoffeeValidation.validate(req.body);
-    if (error) {
-        return res.status(400).send({
-            error: error.details[0].message
-        })
-    }
     const {id} = req.params;
     const {modifiedCount, matchedCount} = await Coffee.updateOne({'_id': id}, {$set: req.body}, null);
 

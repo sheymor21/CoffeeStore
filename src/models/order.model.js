@@ -1,12 +1,12 @@
 ﻿const mongoose = require('mongoose');
 const orderItemsSchema = new mongoose.Schema(
     {
-        CoffeeId: {
+        coffeeId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
             ref: 'coffee'
         },
-        Quantity: {
+        quantity: {
             type: Number,
             required: true
         }
@@ -14,17 +14,17 @@ const orderItemsSchema = new mongoose.Schema(
 )
 
 const orderSchema = new mongoose.Schema({
-    ClientName: {
+    clientName: {
         type: String,
         required: true,
     },
 
-    OrderItems: {
+    orderItems: {
         type: [orderItemsSchema],
         required: true
     },
 
-    OrderDate: {
+    orderDate: {
         type: Date,
         default: Date.now,
     },

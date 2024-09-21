@@ -1,6 +1,7 @@
 ﻿const express = require('express');
 router = express.Router();
 const OrderRoutes = require('../controllers/order.controller');
+const OrderValidation = require("../validations/order.validation");
 
 
 /**
@@ -91,7 +92,15 @@ router.get('/', OrderRoutes.getOrder);
  *         description: Order created successfully
 
  */
-router.post('/', OrderRoutes.addOrder);
+router.post('/', (req, res, next) => {
+    const {error} = OrderValidation.orderCreateValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+    next(OrderRoutes.addOrder(req, res))
+});
 
 /**
  * @swagger
@@ -122,7 +131,15 @@ router.post('/', OrderRoutes.addOrder);
  *         description: Order's client name updated successfully
  *
  */
-router.put('/:id', OrderRoutes.updateOrderClientName);
+router.put('/:id', (req, res, next) => {
+    const {error} = OrderValidation.orderClientNameValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+    next(OrderRoutes.updateOrderClientName(req, res))
+});
 
 /**
  * @swagger
@@ -177,7 +194,15 @@ router.delete('/:id', OrderRoutes.deleteOrder);
  *         description: Items added successfully
 
  */
-router.post('/items/:id', OrderRoutes.addMoreItems);
+router.post('/items/:id', (req, res, next) => {
+    const {error} = OrderValidation.orderItemsValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+    next(OrderRoutes.addMoreItems(req, res))
+});
 
 /**
  * @swagger
@@ -210,7 +235,15 @@ router.post('/items/:id', OrderRoutes.addMoreItems);
  *         description: Item deleted successfully from the order
 
  */
-router.delete('/items/:id', OrderRoutes.deleteOrderItems);
+router.delete('/items/:id', (req, res, next) => {
+    const {error} = OrderValidation.orderItemsIdValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+    next(OrderRoutes.deleteOrderItems(req, res))
+});
 
 /**
  * @swagger
@@ -248,5 +281,13 @@ router.delete('/items/:id', OrderRoutes.deleteOrderItems);
  *         description: Items updated successfully
 
  */
-router.put('/items/:id', OrderRoutes.updateOrderItems);
+router.put('/items/:id', (req, res, next) => {
+    const {error} = OrderValidation.orderItemsValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        });
+    }
+    next(OrderRoutes.updateOrderItems(req, res))
+});
 module.exports = router;

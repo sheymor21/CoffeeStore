@@ -3,12 +3,6 @@ const Order = require('../models/order.model')
 
 
 const addOrder = async (req, res) => {
-    const {error} = OrderValidation.orderCreateValidation.validate(req.body);
-    if (error) {
-        return res.status(400).send({
-            error: error.details[0].message
-        })
-    }
     await Order.create(req.body, null);
     return res.status(201).send(req.body)
 }
@@ -16,42 +10,42 @@ const addOrder = async (req, res) => {
 const getOrder = async (req, res) => {
     const lookup = {
         from: 'coffees', // name of the coffee collection in MongoDB
-        localField: 'OrderItems.CoffeeId',
+        localField: 'orderItems.coffeeId',
         foreignField: '_id',
-        as: 'CoffeeDetails'
+        as: 'coffeeDetails'
     }
 
     const projection = {
         ClientName: 1,
         OrderDate: 1,
-        'OrderItems.CoffeeId': 1,
-        'OrderItems.Quantity': 1,
-        'OrderItems.CoffeeName': '$CoffeeDetails.name',
-        'OrderItems.CoffeePrice': '$CoffeeDetails.price',
-        'OrderItems.TotalCost': {$multiply: ["$CoffeeDetails.price", "$OrderItems.Quantity"]},
+        'orderItems.coffeeId': 1,
+        'orderItems.quantity': 1,
+        'orderItems.coffeeName': '$coffeeDetails.name',
+        'orderItems.coffeePrice': '$coffeeDetails.price',
+        'orderItems.totalCost': {$multiply: ["$coffeeDetails.price", "$orderItems.quantity"]},
     }
 
     const group = {
         _id: "$_id",
-        ClientName: {$first: "$ClientName"},
-        OrderDate: {$first: "$OrderDate"},
-        OrderItems: {
+        clientName: {$first: "$clientName"},
+        orderDate: {$first: "$orderDate"},
+        orderItems: {
             $push: {
-                CoffeeId: "$OrderItems.CoffeeId",
-                CoffeeName: "$OrderItems.CoffeeName",
-                CoffeePrice: "$OrderItems.CoffeePrice",
-                Quantity: "$OrderItems.Quantity",
-                TotalCost: "$OrderItems.TotalCost"
+                coffeeId: "$orderItems.coffeeId",
+                coffeeName: "$orderItems.coffeeName",
+                coffeePrice: "$orderItems.coffeePrice",
+                quantity: "$orderItems.quantity",
+                totalCost: "$orderItems.totalCost"
             }
         },
-        TotalPrice: {
-            $sum: "$OrderItems.TotalCost"
+        totalPrice: {
+            $sum: "$orderItems.totalCost"
         }
     }
     const result = await Order.aggregate()
-        .unwind("$OrderItems")
+        .unwind("$orderItems")
         .lookup(lookup)
-        .unwind("$CoffeeDetails")
+        .unwind("$coffeeDetails")
         .project(projection)
         .group(group)
         .exec()
@@ -60,15 +54,9 @@ const getOrder = async (req, res) => {
 }
 
 const updateOrderClientName = async (req, res) => {
-    const {error} = OrderValidation.orderClientNameValidation.validate(req.body);
-    if (error) {
-        return res.status(400).send({
-            error: error.details[0].message
-        })
-    }
     const {id} = req.params
-    const {ClientName} = req.body
-    const {modifiedCount, matchedCount} = await Order.updateOne({'_id': id}, {$set: {ClientName: ClientName}}, null);
+    const {clientName} = req.body
+    const {modifiedCount, matchedCount} = await Order.updateOne({'_id': id}, {$set: {clientName: clientName}}, null);
     if (modifiedCount === 0) {
         return res.status(404).send({error: "Order not update"})
     } else if (matchedCount === 0) {
@@ -81,20 +69,13 @@ const updateOrderClientName = async (req, res) => {
 }
 
 const addMoreItems = async (req, res) => {
-    const {error} = OrderValidation.orderItemsValidation.validate(req.body);
-    if (error) {
-        return res.status(400).send({
-            error: error.details[0].message
-        })
-    }
-
     const {id} = req.params
     const {coffeeId, quantity} = req.body
     const {matchedCount} = await Order.updateOne({'_id': id}, {
         $push: {
-            OrderItems: {
-                CoffeeId: coffeeId,
-                Quantity: quantity
+            orderItems: {
+                coffeeId: coffeeId,
+                quantity: quantity
             }
         }
     }, null);
@@ -106,19 +87,13 @@ const addMoreItems = async (req, res) => {
 }
 
 const deleteOrderItems = async (req, res) => {
-    const {error} = OrderValidation.orderItemsIdValidation.validate(req.body);
-    if (error) {
-        return res.status(400).send({
-            error: error.details[0].message
-        })
-    }
 
     const {id} = req.params
     const {coffeeIds} = req.body
 
     const {modifiedCount, matchedCount} = await Order.updateOne(
         {'_id': id},
-        {$pull: {OrderItems: {CoffeeId: {$in: coffeeIds}}}},
+        {$pull: {orderItems: {coffeeId: {$in: coffeeIds}}}},
         null
     );
 
@@ -134,17 +109,11 @@ const deleteOrderItems = async (req, res) => {
 }
 
 const updateOrderItems = async (req, res) => {
-    const {error} = OrderValidation.orderItemsValidation.validate(req.body);
-    if (error) {
-        return res.status(400).send({
-            error: error.details[0].message
-        });
-    }
 
     const {id} = req.params;
     const {coffeeId, quantity} = req.body
-    const filter = {'_id': id, 'OrderItems.CoffeeId': coffeeId}
-    const update = {$set: {'OrderItems.$.Quantity': quantity}}
+    const filter = {'_id': id, 'orderItems.coffeeId': coffeeId}
+    const update = {$set: {'orderItems.$.quantity': quantity}}
     const {modifiedCount, matchedCount} = await Order.updateOne(filter, update)
 
 

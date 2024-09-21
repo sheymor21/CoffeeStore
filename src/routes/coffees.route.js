@@ -1,6 +1,7 @@
 ﻿const express = require('express');
 const router = express.Router();
 const CoffeeRoutes = require('../controllers/coffee.controller');
+const CoffeeValidation = require("../validations/coffee.validation");
 /**
  * @swagger
  * tags:
@@ -39,7 +40,15 @@ const CoffeeRoutes = require('../controllers/coffee.controller');
  *       400:
  *         description: Invalid input
  */
-router.post('/', CoffeeRoutes.addCoffee)
+router.post('/', (req, res, next) => {
+    const {error} = CoffeeValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+    next(CoffeeRoutes.addCoffee(req, res))
+})
 /**
  * @swagger
  * /Coffees:
@@ -109,7 +118,15 @@ router.get('/', CoffeeRoutes.getCoffee);
  *       404:
  *         description: Coffee item not found
  */
-router.put('/:id', CoffeeRoutes.updateCoffee);
+router.put('/:id', (req, res, next) => {
+    const {error} = CoffeeValidation.validate(req.body);
+    if (error) {
+        return res.status(400).send({
+            error: error.details[0].message
+        })
+    }
+    next(CoffeeRoutes.updateCoffee(req, res))
+});
 /**
  * @swagger
  * /Coffees/{id}:
