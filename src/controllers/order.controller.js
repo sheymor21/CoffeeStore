@@ -1,5 +1,4 @@
-﻿const OrderValidation = require('../validations/order.validation')
-const Order = require('../models/order.model')
+﻿const Order = require('../models/order.model')
 
 
 const addOrder = async (req, res) => {
